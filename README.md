@@ -10,4 +10,6 @@ Ingame image
 # Additional Settings 
 
 Is necessary to chance the screen size of the "Game" menu in Unity, to 1920x1080.
+
+
 ![Screenshot](git-flappybird-02.png)
