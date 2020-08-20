@@ -22,7 +22,11 @@ public class gameSystem : MonoBehaviour
     private Text scoreText;
     private Text timerText;
 
-    private GameObject[] resetBarrierOnScene;        
+    private GameObject[] resetBarrierOnScene;
+
+    public AudioClip audioOne;
+    public AudioClip audioTwo;
+    public AudioSource primaryAudioSource;
     void Start()
     {
         highScorePoints = 0;
@@ -58,10 +62,31 @@ public class gameSystem : MonoBehaviour
     void Update()
     {
         playerVector = this.transform.position;
-        if (Input.GetKeyDown(KeyCode.Space) && timerInSeconds >= 2)
+        if (timerInSeconds >= 2)
         {   
-            playerBody.AddForce(new Vector2(0.0f, 10.0f), ForceMode2D.Impulse);
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                playerBody.AddForce(new Vector2(0.0f, 10.0f), ForceMode2D.Impulse);
+                PlayAudio(0);
+            }
+            else if (Input.touchCount > 0)
+            {
+                Touch touch = Input.GetTouch(0);
+                switch (touch.phase)
+                {
+                    case TouchPhase.Began:
+                        playerBody.AddForce(new Vector2(0.0f, 10.0f), ForceMode2D.Impulse);
+                        PlayAudio(0);
+                        break;
+                }
+            }            
         }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+
         if (playerVector.y > 6.5f || playerVector.y < -5.5f)
         {   
             CheckScore(2);
@@ -82,6 +107,7 @@ public class gameSystem : MonoBehaviour
         }
         else if (whichScore == 2)
         {
+            PlayAudio(1);
             //stop timer
             StopAllCoroutines();
 
@@ -105,6 +131,20 @@ public class gameSystem : MonoBehaviour
             //new game
             IniciateMatch();
         }
+    }
+
+    void PlayAudio(int which)
+    {
+        if (which == 0)
+        {
+            primaryAudioSource.clip = audioOne;
+            primaryAudioSource.Play();
+        }
+        else if (which == 1)
+        {
+            primaryAudioSource.clip = audioTwo;
+            primaryAudioSource.Play();
+        }        
     }
 
     IEnumerator GameTimer()
@@ -140,11 +180,8 @@ public class gameSystem : MonoBehaviour
     }
 
     void OnCollisionEnter2D (Collision2D collision)
-    {
-        if (collision.gameObject.tag == "Barrier")
-        {   
-            CheckScore(2);            
-        }        
+    {   
+        CheckScore(2);
     }
 
     void OnTriggerEnter2D (Collider2D collision)
